@@ -1,5 +1,6 @@
 <?php
 
+
 class DB
 {
     /**
@@ -107,6 +108,70 @@ class DB
         return $this->pdo->exec($sql);
     }
 
+    function count(...$arg){
+         $sql="select count(*) from $this->table ";
+     
+         if(!empty($arg)){
+             if(is_array($arg[0])){
+                 foreach($arg[0] as $key => $value){
+     
+                     $tmp[]="`$key`='$value'";
+                 }
+         
+                 $sql =$sql . " WHERE " . join(" && ",$tmp);
+             }else{
+     
+                 $sql=$sql .  $arg[0];
+             }
+         }
+     
+         if(isset($arg[1])){
+             $sql=$sql .  $arg[1];
+         }
+
+         return $this->pdo->query($sql)->fetchColumn( );
+     }
+
+     function sum($cols,...$arg){
+        return $this->math('sum',$cols,...$arg);
+     }
+     function min($cols,...$arg){
+        return $this->math('min',$cols,...$arg);
+     }
+     function avg($cols,...$arg){
+        return $this->math('avg',$cols,...$arg);
+     }
+     function max($cols,...$arg){
+        return $this->math('max',$cols,...$arg);
+     }
+
+     //計數用的函式
+    private function math($math,$col,...$arg){
+     $sql="select $math(`$col`) from $this->table ";
+ 
+     if(!empty($arg)){
+         if(is_array($arg[0])){
+             foreach($arg[0] as $key => $value){
+ 
+                 $tmp[]="`$key`='$value'";
+             }
+     
+             $sql =$sql . " where " . join(" && ",$tmp);
+         }else{
+ 
+             $sql=$sql .  $arg[0];
+             
+         }
+        
+     }
+ 
+     if(isset($arg[1])){
+         $sql=$sql .  $arg[1];
+     }
+     
+     //echo $sql;
+     return $this->pdo->query($sql)->fetchColumn( );
+ }
 }
 
 
@@ -120,7 +185,9 @@ $Option = new DB('options');
 #all('topics')
 #all('options')
 
-dd($Topic->del(6));
+//dd($Topic->count(['type'=>1]));
+dd($Topic->sum('id', " limit 2"));
+
 
 function dd($array)
 {
